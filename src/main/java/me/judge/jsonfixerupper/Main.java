@@ -103,16 +103,13 @@ public class Main {
                 }
             }
 
-            if(x.isEmpty())
-            {
+            if(x.isEmpty()) {
                 x.append("0");
             }
-            if(y.isEmpty())
-            {
+            if(y.isEmpty()) {
                 x.append("0");
             }
-            if(z.isEmpty())
-            {
+            if(z.isEmpty()) {
                 x.append("0");
             }
 
