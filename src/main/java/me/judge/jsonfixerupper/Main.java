@@ -103,6 +103,19 @@ public class Main {
                 }
             }
 
+            if(x.isEmpty())
+            {
+                x.append("0");
+            }
+            if(y.isEmpty())
+            {
+                x.append("0");
+            }
+            if(z.isEmpty())
+            {
+                x.append("0");
+            }
+
             vec.vector[0] = String.valueOf(Double.valueOf(x.toString()));
             vec.vector[1] = String.valueOf(Double.valueOf(y.toString()));
             vec.vector[2] = String.valueOf(Double.valueOf(z.toString()));
