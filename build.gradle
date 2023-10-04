@@ -1,0 +1,26 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'application'
+}
+
+group = 'me.judge'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass = 'me.judge.jsonfixerupper.Main'
+}
+
+dependencies {
+    shadow(implementation('com.google.code.gson:gson:2.10.1'))
+
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
