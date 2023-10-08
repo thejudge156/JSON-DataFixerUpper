@@ -30,7 +30,7 @@ public class AnimJson {
         public String easing;
 
         public Vector(String x, String y, String z) {
-            vector = new String[] { x, y, z };
+            this.vector = new String[] { x, y, z };
         }
     }
 
@@ -88,6 +88,7 @@ public class AnimJson {
                     out.name(vec.getKey());
                     out.beginObject();
                 }
+
                 out.name("vector");
                 out.beginArray();
                 out.value(Double.valueOf(vec.getValue().vector[0]));
@@ -141,14 +142,20 @@ public class AnimJson {
                     }
                 }
 
+                String x = "";
+                String y = "";
+                String z = "";
+
                 Map<String, Vector> list = "position".equals(currType) ? bone.position : bone.rotation;
                 if(currKeyframe.contains(".")) {
                     in.beginObject();
                     in.nextName();
                     in.beginArray();
-                    list.put(currKeyframe, new Vector(in.nextString(), in.nextString(), in.nextString()));
+                    x = in.nextString();
+                    y = in.nextString();
+                    z = in.nextString();
+                    list.put(currKeyframe, new Vector(x, y, z));
                     in.endArray();
-                    currKeyframe = "";
 
                     if(in.peek().equals(JsonToken.NAME)) {
                         in.nextName();
@@ -158,8 +165,19 @@ public class AnimJson {
                     in.endObject();
 
                     if(in.peek().equals(JsonToken.END_OBJECT)) {
+                        if(x.contains("360") && "rotation".equals(currType)) {
+                            list.put(String.valueOf(Double.valueOf(currKeyframe) + 0.0000001), new Vector("0", y, z));
+                        }
+                        if(y.contains("360") && "rotation".equals(currType)) {
+                            list.put(String.valueOf(Double.valueOf(currKeyframe) + 0.0000001), new Vector(x, "0", z));
+                        }
+                        if(z.contains("360") && "rotation".equals(currType)) {
+                            list.put(String.valueOf(Double.valueOf(currKeyframe) + 0.0000001), new Vector(x, y, "0"));
+                        }
                         in.endObject();
                     }
+
+                    currKeyframe = "";
                 }
 
                 if("vector".equals(currField)) {

@@ -39,8 +39,9 @@ public class Main {
             throw new IllegalStateException("JSON could not parse!");
         }
 
-        for(Object anim : parsedJson.animations.values()) {
-            for(AnimJson.Bone bone : ((AnimJson.Animation)anim).bones.values()) {
+        for(AnimJson.Animation anim : parsedJson.animations.values()) {
+            anim.animation_length += 0.0000001; // Just in case we have to add a reset keyframe
+            for(AnimJson.Bone bone : anim.bones.values()) {
                 for(AnimJson.Vector vec : bone.position.values()) {
                     setVec(vec);
                 }
@@ -86,6 +87,7 @@ public class Main {
                     x.append(n);
                 }
             }
+            hasNeg = false;
             for(char n : vec.vector[1].toCharArray()) {
                 if(Character.isDigit(n) || (!hasNeg && n == '-')) {
                     if(n == '-') {
@@ -94,6 +96,7 @@ public class Main {
                     y.append(n);
                 }
             }
+            hasNeg = false;
             for(char n : vec.vector[2].toCharArray()) {
                 if(Character.isDigit(n) || (!hasNeg && n == '-')) {
                     if(n == '-') {
@@ -103,14 +106,24 @@ public class Main {
                 }
             }
 
-            if(x.isEmpty()) {
+            if(x.toString().equals("-")) {
+                x.setCharAt(0, '0');
+            }
+            if(y.toString().equals("-")) {
+                y.setCharAt(0, '0');
+            }
+            if(z.toString().equals("-")) {
+                z.setCharAt(0, '0');
+            }
+
+            if(x.toString().isBlank()) {
                 x.append("0");
             }
-            if(y.isEmpty()) {
-                x.append("0");
+            if(y.toString().isBlank()) {
+                y.append("0");
             }
-            if(z.isEmpty()) {
-                x.append("0");
+            if(z.toString().isBlank()) {
+                z.append("0");
             }
 
             vec.vector[0] = String.valueOf(Double.valueOf(x.toString()));
