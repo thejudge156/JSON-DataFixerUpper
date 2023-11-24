@@ -117,13 +117,13 @@ public class Main {
             }
 
             if(x.toString().endsWith("-")) {
-                x.deleteCharAt(x.toString().length());
+                x.deleteCharAt(x.toString().length() - 1);
             }
             if(y.toString().endsWith("-")) {
-                y.deleteCharAt(y.toString().length());
+                y.deleteCharAt(y.toString().length() - 1);
             }
             if(z.toString().endsWith("-")) {
-                z.deleteCharAt(z.toString().length());
+                z.deleteCharAt(z.toString().length() - 1);
             }
 
             if(x.toString().isBlank()) {
