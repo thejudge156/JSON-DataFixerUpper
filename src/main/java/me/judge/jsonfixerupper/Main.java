@@ -116,6 +116,16 @@ public class Main {
                 z.setCharAt(0, '0');
             }
 
+            if(x.toString().endsWith("-")) {
+                x.deleteCharAt(x.toString().length());
+            }
+            if(y.toString().endsWith("-")) {
+                y.deleteCharAt(y.toString().length());
+            }
+            if(z.toString().endsWith("-")) {
+                z.deleteCharAt(z.toString().length());
+            }
+
             if(x.toString().isBlank()) {
                 x.append("0");
             }
