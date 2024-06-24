@@ -8,6 +8,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class Main {
     private static final Gson GSON;
@@ -28,9 +32,9 @@ public class Main {
             printUsage();
         }
 
-        AnimJson parsedJson = null;
+        AnimationJson parsedJson = null;
         try {
-            parsedJson = GSON.fromJson(new FileReader(jsonDataFixerUpperFile), AnimJson.class);
+            parsedJson = GSON.fromJson(new FileReader(jsonDataFixerUpperFile), AnimationJson.class);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -39,15 +43,26 @@ public class Main {
             throw new IllegalStateException("JSON could not parse!");
         }
 
-        for(AnimJson.Animation anim : parsedJson.animations.values()) {
-            anim.animation_length += 0.0000001; // Just in case we have to add a reset keyframe
-            for(AnimJson.Bone bone : anim.bones.values()) {
-                for(AnimJson.Vector vec : bone.position.values()) {
-                    setVec(vec);
+        for(AnimationJson.Animation anim : parsedJson.animations.values()) {
+            anim.animation_length += 0.002;
+            for(AnimationJson.Bone bone : anim.bones.values()) {
+                Map<String, AnimationJson.GenericHolder> mergeRot = new HashMap<>();
+                double lastKeyframe = 0;
+
+                for (Map.Entry<String, AnimationJson.GenericHolder> holder : bone.position.entrySet()) {
+                    setVec(holder.getValue(), holder.getKey(), bone.position);
                 }
-                for(AnimJson.Vector vec : bone.rotation.values()) {
-                    setVec(vec);
+                for (Map.Entry<String, AnimationJson.GenericHolder> holder : bone.rotation.entrySet()) {
+                    if(Double.parseDouble(holder.getValue().keyframe) > lastKeyframe) {
+                        lastKeyframe = Double.parseDouble(holder.getValue().keyframe);
+                    }
+                    mergeRot.putAll(setVec(holder.getValue(), holder.getKey(), bone.rotation));
                 }
+
+                AnimationJson.GenericHolder holder = new AnimationJson.GenericHolder();
+                holder.keyframe = String.valueOf(lastKeyframe + 0.002);
+                holder.vector = List.of(String.valueOf(0), String.valueOf(0), String.valueOf(0));
+                bone.rotation.put(String.valueOf(lastKeyframe + 0.002), holder);
             }
         }
 
@@ -57,7 +72,7 @@ public class Main {
                 out.createNewFile();
             }
             FileWriter writer = new FileWriter(out);
-            GSON.toJson(parsedJson, AnimJson.class, new JsonWriter(writer));
+            GSON.toJson(parsedJson, AnimationJson.class, new JsonWriter(writer));
             writer.flush();
             writer.close();
             System.out.println("Done processing!");
@@ -66,11 +81,39 @@ public class Main {
         }
     }
 
-    private static void setVec(AnimJson.Vector vec) {
+    private static Map<String, AnimationJson.GenericHolder> setVec(AnimationJson.GenericHolder vec, String currKeyframe, Map<String, AnimationJson.GenericHolder> holderMap) {
+        Map<String, AnimationJson.GenericHolder> ret = new HashMap<>();
         try {
-            vec.vector[0] = String.valueOf(Double.valueOf(vec.vector[0]));
-            vec.vector[1] = String.valueOf(Double.valueOf(vec.vector[1]));
-            vec.vector[2] = String.valueOf(Double.valueOf(vec.vector[2]));
+            double x = Double.parseDouble(vec.vector.get(0));
+            double y = Double.parseDouble(vec.vector.get(1));
+            double z = Double.parseDouble(vec.vector.get(2));
+
+            /*
+            boolean needsReset = false;
+            double newX = x, newY = y, newZ = z;
+            if(x <= -360 || x >= 360) {
+                needsReset = true;
+                newX = x % (x < 0 ? -360 : 360);
+            }
+            if(y <= -360 || y >= 360) {
+                needsReset = true;
+                newY = y % (y < 0 ? -360 : 360);
+            }
+            if(z <= -360 || z >= 360) {
+                needsReset = true;
+                newZ = z % (z < 0 ? -360 : 360);
+            }
+
+            if(needsReset) {
+                AnimationJson.GenericHolder holder = new AnimationJson.GenericHolder();
+                holder.vector = List.of(String.valueOf(newX), String.valueOf(newY), String.valueOf(newZ));
+                holder.keyframe = "wack";
+                ret.put(String.valueOf(Double.parseDouble(currKeyframe) + 0.002), holder);
+            }*/
+
+            vec.vector.set(0, String.valueOf(x));
+            vec.vector.set(1, String.valueOf(y));
+            vec.vector.set(2, String.valueOf(z));
         } catch (NumberFormatException exception) {
             System.out.println("String found! Replacing with inferred value.");
 
@@ -79,7 +122,7 @@ public class Main {
             StringBuilder z = new StringBuilder();
 
             boolean hasNeg = false;
-            for(char n : vec.vector[0].toCharArray()) {
+            for(char n : vec.vector.get(0).toCharArray()) {
                 if(Character.isDigit(n) || (!hasNeg && n == '-')) {
                     if(n == '-') {
                         hasNeg = true;
@@ -88,7 +131,7 @@ public class Main {
                 }
             }
             hasNeg = false;
-            for(char n : vec.vector[1].toCharArray()) {
+            for(char n : vec.vector.get(1).toCharArray()) {
                 if(Character.isDigit(n) || (!hasNeg && n == '-')) {
                     if(n == '-') {
                         hasNeg = true;
@@ -97,7 +140,7 @@ public class Main {
                 }
             }
             hasNeg = false;
-            for(char n : vec.vector[2].toCharArray()) {
+            for(char n : vec.vector.get(2).toCharArray()) {
                 if(Character.isDigit(n) || (!hasNeg && n == '-')) {
                     if(n == '-') {
                         hasNeg = true;
@@ -136,20 +179,19 @@ public class Main {
                 z.append("0");
             }
 
-            vec.vector[0] = String.valueOf(Double.valueOf(x.toString()));
-            vec.vector[1] = String.valueOf(Double.valueOf(y.toString()));
-            vec.vector[2] = String.valueOf(Double.valueOf(z.toString()));
+            vec.vector.set(0, String.valueOf(Double.valueOf(x.toString())));
+            vec.vector.set(1, String.valueOf(Double.valueOf(y.toString())));
+            vec.vector.set(2, String.valueOf(Double.valueOf(z.toString())));
         }
+        return ret;
     }
 
     private static void printUsage() {
         System.out.println("Usage: ./jsondatafixerupper [json file]");
     }
 
-
     static {
         GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(AnimJson.Bone.class, new AnimJson.Vec3KeyframeAdapter());
         GSON = builder.create();
     }
 }
