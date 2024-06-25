@@ -47,22 +47,15 @@ public class Main {
             anim.animation_length += 0.002;
             for(AnimationJson.Bone bone : anim.bones.values()) {
                 Map<String, AnimationJson.GenericHolder> mergeRot = new HashMap<>();
-                double lastKeyframe = 0;
 
                 for (Map.Entry<String, AnimationJson.GenericHolder> holder : bone.position.entrySet()) {
-                    setVec(holder.getValue(), holder.getKey(), bone.position);
+                    setVec(holder.getValue());
                 }
                 for (Map.Entry<String, AnimationJson.GenericHolder> holder : bone.rotation.entrySet()) {
-                    if(Double.parseDouble(holder.getValue().keyframe) > lastKeyframe) {
-                        lastKeyframe = Double.parseDouble(holder.getValue().keyframe);
-                    }
-                    mergeRot.putAll(setVec(holder.getValue(), holder.getKey(), bone.rotation));
+                    mergeRot.putAll(setVec(holder.getValue()));
                 }
 
-                AnimationJson.GenericHolder holder = new AnimationJson.GenericHolder();
-                holder.keyframe = String.valueOf(lastKeyframe + 0.002);
-                holder.vector = List.of(String.valueOf(0), String.valueOf(0), String.valueOf(0));
-                bone.rotation.put(String.valueOf(lastKeyframe + 0.002), holder);
+                bone.rotation.putAll(mergeRot);
             }
         }
 
@@ -81,7 +74,7 @@ public class Main {
         }
     }
 
-    private static Map<String, AnimationJson.GenericHolder> setVec(AnimationJson.GenericHolder vec, String currKeyframe, Map<String, AnimationJson.GenericHolder> holderMap) {
+    private static Map<String, AnimationJson.GenericHolder> setVec(AnimationJson.GenericHolder vec) {
         Map<String, AnimationJson.GenericHolder> ret = new HashMap<>();
         try {
             double x = Double.parseDouble(vec.vector.get(0));

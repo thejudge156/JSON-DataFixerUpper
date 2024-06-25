@@ -1,6 +1,5 @@
 package me.judge.jsonfixerupper;
 
-import com.google.gson.InstanceCreator;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
@@ -8,7 +7,6 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.*;
 
 public class AnimationJson {
@@ -25,6 +23,7 @@ public class AnimationJson {
         Map<String, GenericHolder> rotation = new HashMap<>();
         @JsonAdapter(GenericHolderAdapter.class)
         Map<String, GenericHolder> position = new HashMap<>();
+        List<String> scale = new ArrayList<>();
     }
 
     public static class GenericHolderAdapter extends TypeAdapter<Map<String, GenericHolder>> {
