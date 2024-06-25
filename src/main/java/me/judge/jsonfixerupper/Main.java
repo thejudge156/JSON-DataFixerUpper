@@ -44,7 +44,6 @@ public class Main {
         }
 
         for(AnimationJson.Animation anim : parsedJson.animations.values()) {
-            anim.animation_length += 0.002;
             for(AnimationJson.Bone bone : anim.bones.values()) {
                 Map<String, AnimationJson.GenericHolder> mergeRot = new HashMap<>();
 
