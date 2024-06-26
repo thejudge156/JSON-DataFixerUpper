@@ -1,5 +1,6 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.graalvm.buildtools.native' version '0.10.2'
     id 'application'
 }
 
@@ -19,6 +20,18 @@ dependencies {
 
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+graalvmNative {
+    agent {
+        defaultMode = "standard" // Default agent mode if one isn't specified using `-Pagent=mode_name`
+        enabled = true
+    }
+    binaries {
+        main {
+            runtimeArgs.add('anim.json')
+        }
+    }
 }
 
 test {
